@@ -1,0 +1,17 @@
+{
+  "board": {
+    "list": [{
+      "title": "Backlog",
+      "cards": [{
+        "id": "ajdfhjkrfh25",
+        "title": "Publicar en GitHub Pages",
+        "description": "Lorem ipsum dolor sit amet",
+        "tags": [
+          "JS",
+          "Css",
+          "Html"
+        ]
+      }]
+    }]
+  }
+}
