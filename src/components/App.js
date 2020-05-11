@@ -8,24 +8,40 @@ import board from '../api/board.json';
 function App() {
   const apiList = board.board.list;
   const [list, setList] = useState(apiList);
-  const [listAdd, setListAdd] = useState('');
+  const [cards, setCards] = useState([]);
   const [filter, setFilter] = useState('');
 
   function handleFilter(data) {
     setFilter(data.value);
   }
-  function handleEventAdd(data) {
-    setListAdd(data);
+  function handleEventAdd() {
+    const newList = [...list];
+    newList.push({title: '', cards: []});
+    setList(newList);
   }
-  function addNewList() {
-    console.log(list.length);
+  list.map((item, i) => (item.id = i));
+
+  function handleNewCard(id) {
+    function addNewCard() {
+      for (const item of list) {
+        console.log(item.cards);
+        if (item.id === parseInt(id)) {
+          item.cards.push({id: '', title: '', description: '', tags: Array(0)});
+        }
+      }
+      return setList(list);
+    }
+    addNewCard();
   }
-  addNewList();
+  console.log(list);
+  const renderFilterList = list.filter((list) => {
+    return list.title.toUpperCase().includes(filter.toUpperCase());
+  });
   return (
     <>
       <Header handleFilter={handleFilter} />
       <p>Estas buscando por {filter} </p>
-      <Main handleEventAdd={handleEventAdd} id={list.length} list={list} />
+      <Main handleEventAdd={handleEventAdd} cards={cards} list={list} handleNewCard={handleNewCard} renderFilterList={renderFilterList} />
     </>
   );
 }

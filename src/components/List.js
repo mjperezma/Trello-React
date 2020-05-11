@@ -4,18 +4,18 @@ import ListFooter from './ListFooter';
 import Card from './Card';
 
 const List = (props) => {
-  console.log(props.id);
-  const cardElement = props.list.cards.map((item, index) => {
-    return <Card card={item} id={index} />;
+  console.log(props);
+  const cardElement = props.list.cards.map((item) => {
+    return <Card card={item} key={item.id} />;
   });
 
   return (
     <>
       <div className='app-list'>
         <div className='p-1 rounded-sm bg-primary shadow'>
-          <ListHeader title={props.list.title} />
+          <ListHeader title={props.list.title} id={props.list.id} />
           {cardElement}
-          <ListFooter />
+          <ListFooter id={props.id} handleNewCard={props.handleNewCard} />
         </div>
       </div>
     </>
