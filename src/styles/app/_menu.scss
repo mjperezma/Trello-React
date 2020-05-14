@@ -16,4 +16,8 @@ $app-menu-width: 16rem;
   &.show {
     width: $app-menu-width;
   }
+
+  &-card {
+    cursor: pointer;
+  }
 }

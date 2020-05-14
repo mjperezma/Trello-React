@@ -1,48 +1,105 @@
-import React, {useState} from 'react';
-import '../assets/scss/App.scss';
-import Header from './Header';
-import List from './List';
-import Main from './Main';
-import board from '../api/board.json';
+import React, {useState, useEffect} from 'react';
+import {Route, Switch} from 'react-router-dom';
+import Board from './board/Board';
+import Edit from './edit/Edit';
+import Header from './header/Header';
+import Menu from './menu/Menu';
+import api from '../services/api';
+import ls from '../services/local-storage';
+import state from '../services/state';
+import '../styles/app.scss';
 
 function App() {
-  const apiList = board.board.list;
-  const [list, setList] = useState(apiList);
-  const [cards, setCards] = useState([]);
-  const [filter, setFilter] = useState('');
+  // state
 
-  function handleFilter(data) {
-    setFilter(data.value);
-  }
-  function handleEventAdd() {
-    const newList = [...list];
-    newList.push({title: '', cards: []});
-    setList(newList);
-  }
-  list.map((item, i) => (item.id = i));
-
-  function handleNewCard(id) {
-    function addNewCard() {
-      for (const item of list) {
-        console.log(item.cards);
-        if (item.id === parseInt(id)) {
-          item.cards.push({id: '', title: '', description: '', tags: Array(0)});
-        }
-      }
-      return setList(list);
-    }
-    addNewCard();
-  }
-  console.log(list);
-  const renderFilterList = list.filter((list) => {
-    return list.title.toUpperCase().includes(filter.toUpperCase());
+  const [data, setData] = useState({
+    board: {
+      list: [],
+    },
   });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [filterText, setFilterText] = useState('');
+
+  // effects
+
+  useEffect(() => {
+    if (ls.isValid()) {
+      const lsData = ls.get();
+      setData(lsData);
+    } else {
+      api.getApiData().then(setData);
+    }
+  }, []);
+
+  useEffect(() => {
+    ls.set(data);
+  });
+
+  // eventos
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleFilter = (filterText) => {
+    setFilterText(filterText);
+  };
+
+  const handleAction = (evData) => {
+    if (evData.action === 'add-list') {
+      state.addList(data);
+    } else if (evData.action === 'delete-list') {
+      state.deleteList(data, evData.listId);
+    } else if (evData.action === 'move-list-to-left') {
+      state.moveListToLeft(data, evData.listId);
+    } else if (evData.action === 'move-list-to-right') {
+      state.moveListToRight(data, evData.listId);
+    } else if (evData.action === 'set-list-title') {
+      state.setListTitle(data, evData.listId, evData.value);
+    } else if (evData.action === 'add-card') {
+      state.addCard(data, evData.listId);
+    } else if (evData.action === 'delete-card') {
+      state.deleteCard(data, evData.cardId);
+    } else if (evData.action === 'set-card-title') {
+      state.setCardTitle(data, evData.cardId, evData.value);
+    } else if (evData.action === 'set-card-description') {
+      state.setCardDescription(data, evData.cardId, evData.value);
+    } else if (evData.action === 'move-card-up') {
+      state.moveCardUp(data, evData.cardId);
+    } else if (evData.action === 'move-card-down') {
+      state.moveCardDown(data, evData.cardId);
+    }
+    setData({...data});
+  };
+
+  // render
+
+  const getListData = () => {
+    return data.board ? state.filter(data.board.list, filterText) : [];
+  };
+
+  const getMenuData = () => {
+    return state.groupCardByTags(data);
+  };
+
+  const renderEdit = (props) => {
+    const cardId = props.match.params.id;
+    if (state.existsCard(data, cardId)) {
+      const card = state.getCard(data, cardId);
+      const list = state.getListOfCard(data, cardId);
+      return <Edit card={card} list={list} handleAction={handleAction} />;
+    }
+  };
+
   return (
-    <>
-      <Header handleFilter={handleFilter} />
-      <p>Estas buscando por {filter} </p>
-      <Main handleEventAdd={handleEventAdd} cards={cards} list={list} handleNewCard={handleNewCard} renderFilterList={renderFilterList} />
-    </>
+    <div className='app'>
+      <Header filterText={filterText} toggleMenu={toggleMenu} handleFilter={handleFilter} />
+      <Board list={getListData()} handleAction={handleAction} />
+      <Menu isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} data={getMenuData()} />
+      <Switch>
+        <Route path='/card/:id' render={renderEdit} />
+      </Switch>
+    </div>
   );
 }
 

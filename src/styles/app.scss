@@ -1,5 +1,3 @@
-@import "~bootstrap/scss/bootstrap";
-
 // bootstrap
 @import './bootstrap/functions';
 @import './bootstrap/variables';
@@ -19,8 +17,8 @@
 @import './bootstrap/utilities';
 @import './bootstrap/transitions';
 @import './bootstrap/type';
-@import './app/variables';
 // app
+@import './app/variables';
 @import './app/app';
 @import './app/card';
 @import './app/edit';

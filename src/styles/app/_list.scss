@@ -43,4 +43,9 @@
       color: #fff6;
     }
   }
+
+  &:nth-of-type(1) &-left-button,
+  &:nth-last-of-type(2) &-right-button {
+    display: none;
+  }
 }
